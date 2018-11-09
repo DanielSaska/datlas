@@ -1,0 +1,10 @@
+example_data
+__pycache__
+venv
+*.pdf
+*.csv
+*.xlsx
+config.json
+Dockerfile
+Jenkinsfile
+*.sample

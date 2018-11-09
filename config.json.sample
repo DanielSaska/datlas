@@ -1,0 +1,6 @@
+{
+	"mongodb": "mongodb_uri",
+	"data_dir": "/path/to/your/data"
+	"pickle_dir": "/path/to/your/data",
+	"threads": 8
+}
