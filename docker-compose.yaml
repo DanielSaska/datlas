@@ -1,0 +1,11 @@
+version: "2"
+services:
+   data_atlas:
+      container_name: "data_atlas"
+      image: danielsaska/data_atlas
+      build: .
+      volumes:
+         - ./test_env/data:/mnt/data:ro
+         - ./test_env/pickles:/mnt/pickles:rw
+         - ./config.json:/app/config.json:ro
+
