@@ -106,3 +106,4 @@ venv.bak/
 config.json
 commit.sha
 configuration.py
+test_env/
