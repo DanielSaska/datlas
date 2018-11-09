@@ -1,15 +1,5 @@
 #!/bin/python3
-from ezfish.observatory.ingest import ingest_recording, ingest_experiment, ingest_group
-from ezfish.analysis.addons.vr.displacement_control_addon import DisplacementControlAddon
-from ezfish.analysis.addons.vr.phase_alignment_addon import PhaseAlignmentAddon
-from ezfish.analysis.addons.vr.inst_velocity_addon import InstVelocityAddon
-from ezfish.analysis.addons.gc.neuron_agreement_addon import NeuronAgreementAddon
-from ezfish.analysis.addons.gc.p_filtered_neuron_agreement_addon import PFiltNeuronAgreementAddon
-from ezfish.analysis.groups.gc_gcamp6f_agreement_comparison_group import GcGCaMP6fAgreementComparisonGroup
-from ezfish.analysis.groups.gc_gcamp6f_method_comparison_group import GcGCaMP6fMethodComparisonGroup
-from ezfish.data_types.vr_data import VrData
-from ezfish.data_types.gc_data import GcData
-from ezfish.data_types.ca_data import CaData
+from observatory.ingest import ingest_recording, ingest_experiment, ingest_group
 from pymongo import MongoClient
 import json
 import argparse
@@ -17,8 +7,6 @@ import os
 from multiprocessing import Process
 import multiprocessing
 import time
-
-from configuration import *
 
 def search_files(directory='.', extension=''):
     results = []
@@ -35,8 +23,6 @@ def slave_rec(payload, cfg, analysis_addons, groups):
     for d in payload:
         results.append(ingest_recording(d[0],d[1],client, cfg, analysis_addons, groups))
     return results
-
-
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--config",
