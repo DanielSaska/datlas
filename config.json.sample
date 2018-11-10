@@ -2,5 +2,6 @@
 	"mongodb": "mongodb_uri",
 	"data_dir": "/path/to/your/data",
 	"pickle_dir": "/path/to/your/data",
+	"zmq": "zmq_uri",
 	"threads": 8
 }
