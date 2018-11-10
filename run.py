@@ -1,6 +1,7 @@
 #!/bin/python3
 from observatory.ingest import ingest_recording, ingest_experiment, ingest_group
 from pymongo import MongoClient
+import zmq
 import json
 import argparse
 import os
@@ -17,11 +18,11 @@ def search_files(directory='.', extension=''):
                 results.append([dirpath, name])
     return results
 
-def slave_rec(payload, cfg, analysis_addons, groups):
+def slave_rec(payload, cfg):
     client = MongoClient(cfg['mongodb'])
     results = []
     for d in payload:
-        results.append(ingest_recording(d[0],d[1],client, cfg, analysis_addons, groups))
+        results.append(ingest_recording(d[0],d[1], client, cfg))
     return results
 
 ap = argparse.ArgumentParser()
@@ -34,11 +35,22 @@ print("Starting pool with {} workers.".format(cfg["threads"]))
 pool = multiprocessing.Pool(processes=cfg["threads"])
 client = MongoClient(cfg['mongodb'])
 
+
+zmq_context = zmq.Context()
+zmq_socket = zmq_context.socket(zmq.REQ)
+zmq_socket.connect(cfg["zmq"])
+print(cfg["zmq"])
+
 cache_files = set();
 cache_recordings = {}
 
 
 while True:
+    zmq_socket.send_json({"req": "get_data_types"})
+    resp = zmq_socket.recv_json()
+    if "err" in resp:
+        pass #TODO: handle error
+    data_types = resp["data"]
     #For every data type, check for new files
     print("--- Found recordings:")
     for k in data_types.keys():
@@ -48,10 +60,14 @@ while True:
             print(rc)
             if rc not in cache_files:
                 cache_files.add(rc)
-                data = data_types[k]["class"](r[0],r[1],fill=False)
-                if str(data.id) not in cache_recordings.keys():
-                    cache_recordings[str(data.id)] = {}
-                cache_recordings[str(data.id)][k] = data
+                zmq_socket.send_json({"req": "get_id", "data": {"type": k, "dir": r[0], "fname": r[1]}})
+                resp = zmq_socket.recv_json()
+                if "err" in resp:
+                    pass #TODO: handle error
+                rid = resp["data"]
+                if rid not in cache_recordings.keys():
+                    cache_recordings[rid] = {}
+                cache_recordings[rid][k] = {"dir": r[0], "fname": r[1]};
     print("--- End of list")
 
         
@@ -68,7 +84,7 @@ while True:
 
     print("--- Jobs scheduled")
     #Process all recordings and get results of the processing     
-    results_futures = [pool.apply_async(slave_rec, args=(pl,cfg,addons,groups)) for pl in payloads]
+    results_futures = [pool.apply_async(slave_rec, args=(pl,cfg)) for pl in payloads]
     print("--- Waiting for jobs to finish")
     results = [fut.get() for fut in results_futures]
     print("--- Jobs have finished")
