@@ -1,13 +1,12 @@
 #!/bin/python3
-from observatory.ingest import ingest_recording, ingest_experiment, ingest_group
+from .observatory.ingest import ingest_recording, ingest_experiment, ingest_group
 from pymongo import MongoClient
-import zmq
 import json
-import argparse
 import os
 from multiprocessing import Process
 import multiprocessing
 import time
+
 
 def search_files(directory='.', extension=''):
     results = []
@@ -18,73 +17,66 @@ def search_files(directory='.', extension=''):
                 results.append([dirpath, name])
     return results
 
-def slave_rec(payload, cfg):
-    client = MongoClient(cfg['mongodb'])
+def slave_rec(payload, cfg, analysis_addons, groups):
+    client = MongoClient(cfg["uri_mongodb"])
     results = []
     for d in payload:
-        results.append(ingest_recording(d[0],d[1], client, cfg))
+        results.append(ingest_recording(d[0],d[1],client, cfg, analysis_addons, groups))
     return results
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-c", "--config",
-	help="path to the config.json file")
-args = vars(ap.parse_args())
 
-cfg = json.load(open(args["config"]))
-print("Starting pool with {} workers.".format(cfg["threads"]))
-pool = multiprocessing.Pool(processes=cfg["threads"])
-client = MongoClient(cfg['mongodb'])
-
-
-zmq_context = zmq.Context()
-zmq_socket = zmq_context.socket(zmq.REQ)
-zmq_socket.connect(cfg["zmq"])
-print(cfg["zmq"])
-
-cache_files = set();
-cache_recordings = {}
+class State:
+    def __init__(self,cfg):
+        print("Starting pool with {} workers.".format(cfg.n_threads))
+        self.pool = multiprocessing.Pool(processes=cfg.n_threads)
+        self.client = MongoClient(cfg.uri_mongodb)
+        self.cache_files = set();
+        self.cache_recordings = {}
 
 
-while True:
-    zmq_socket.send_json({"req": "get_data_types"})
-    resp = zmq_socket.recv_json()
-    if "err" in resp:
-        pass #TODO: handle error
-    data_types = resp["data"]
+def run(cfg,stateful=False,state=None,verbose=True):
+    if stateful: 
+        if state is None:
+            s = State(cfg)
+        else:
+            s = state
+    else:
+        s = State(cfg)
+    cfg_p = {
+            "pickle_dir": cfg.dir_pickles,
+            "uri_mongodb": cfg.uri_mongodb
+            }
+
     #For every data type, check for new files
     print("--- Found recordings:")
-    for k in data_types.keys():
-        recordings = search_files(directory="{}/{}".format(cfg['data_dir'],data_types[k]["dir"]), extension='meta.json')
+    for k in cfg.data_types.keys():
+        recordings = search_files(directory="{}/{}".format(cfg.dir_data,cfg.data_types[k]["dir"]), extension='meta.json')
         for r in recordings:
             rc = "{}/{}".format(r[0],r[1])
             print(rc)
-            if rc not in cache_files:
-                cache_files.add(rc)
-                zmq_socket.send_json({"req": "get_id", "data": {"type": k, "dir": r[0], "fname": r[1]}})
-                resp = zmq_socket.recv_json()
-                if "err" in resp:
-                    pass #TODO: handle error
-                rid = resp["data"]
-                if rid not in cache_recordings.keys():
-                    cache_recordings[rid] = {}
-                cache_recordings[rid][k] = {"dir": r[0], "fname": r[1]};
+            if rc not in s.cache_files:
+                s.cache_files.add(rc)
+                data = cfg.data_types[k]["class"](r[0],r[1],fill=False)
+                if str(data.id) not in s.cache_recordings.keys():
+                    s.cache_recordings[str(data.id)] = {}
+                s.cache_recordings[str(data.id)][k] = data
     print("--- End of list")
 
         
 
     #We split up workloads
     payloads = []
-    for i in range(int(cfg["threads"])):
+    for i in range(int(cfg.n_threads)):
         payloads.append([])
-    rkeys = list(cache_recordings.keys())
+    rkeys = list(s.cache_recordings.keys())
     for ki in range(len(rkeys)):
         k = rkeys[ki]
-        payloads[ki%int(cfg["threads"])].append([k, cache_recordings[k]])
+        payloads[ki%int(cfg.n_threads)].append([k, s.cache_recordings[k]])
     processes = []
 
     print("--- Jobs scheduled")
     #Process all recordings and get results of the processing     
-    results_futures = [pool.apply_async(slave_rec, args=(pl,cfg)) for pl in payloads]
+    results_futures = [s.pool.apply_async(slave_rec, args=(pl,cfg_p,cfg.addons,cfg.groups)) for pl in payloads]
     print("--- Waiting for jobs to finish")
     results = [fut.get() for fut in results_futures]
     print("--- Jobs have finished")
@@ -125,20 +117,18 @@ while True:
         t =  tags[tk]
         t["name"] = tk
         t["type"] = "tag"
-        t["analysis_addons"] = addons
-        ingest_experiment(cfg,t,client,pool)
+        t["analysis_addons"] = cfg.addons
+        ingest_experiment(cfg_p,t,s.client,s.pool)
     for ek in experiments.keys():
         e =  experiments[ek]
         e["name"] = ek
         e["type"] = "experiment"
-        e["analysis_addons"] = addons
-        ingest_experiment(cfg,e,client,pool)
+        e["analysis_addons"] = cfg.addons
+        ingest_experiment(cfg_p,e,s.client,s.pool)
     for gk in pgroups.keys():
         g = pgroups[gk]
-        ingest_group(cfg,g["class"],g["recordings"],g["changed"],client,pool)
-
-
-    time.sleep(60)
+        ingest_group(cfg_p,g["class"],g["recordings"],g["changed"],s.client,s.pool)
+    return s
 
 
 

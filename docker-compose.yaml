@@ -4,10 +4,6 @@ services:
       container_name: "data_atlas"
       image: danielsaska/data_atlas
       build: .
-      links:
-         - ezfish_atlas_worker
-      depends_on:
-         - ezfish_atlas_worker
       volumes:
          - ./test_env/data:/mnt/data:ro
          - ./test_env/pickles:/mnt/pickles:rw
@@ -19,4 +15,7 @@ services:
          - ./test_env/data:/mnt/data:ro
          - ./test_env/pickles:/mnt/pickles:rw
          - ./test_env/config.json:/app/config.json:ro
-
+      links:
+         - data_atlas
+      depends_on:
+         - data_atlas
