@@ -8,7 +8,7 @@ node {
     }
 
     stage('Build image') {
-        app = docker.build("danielsaska/data_atlas","-f ./Dockerfile .")
+        app = docker.build("danielsaska/datlas","-f ./Dockerfile .")
     }
 
     stage('Push image') {
