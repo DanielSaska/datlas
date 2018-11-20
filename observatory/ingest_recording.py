@@ -6,6 +6,7 @@ from .tools.slaves import gmap_slave
 from .tools.slaves import expmap_slave
 import multiprocessing
 import os
+import time
 import errno
 import os.path
 import pickle
@@ -101,6 +102,8 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
         data_types[-1]["rec_id"] = epid
         data_types[-1]["data_type"] = k
         data_types[-1]["visualizations"] = []
+        data_types[-1]["meta"] = []
+
         recording["data_types"].append(k)
         for a in anls:
             data_type_visualizations.append({
@@ -111,6 +114,16 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
                 "data": a
                 })
             data_types[-1]["visualizations"].append(data_type_visualizations[-1]["_id"])
+        try:
+            data_types[-1]["meta"].append({"name": "Processing Date", "value": time.asctime(time.localtime())+" (local time)"})
+            dt_fn = data_dict[k].get_filename()
+            data_types[-1]["meta"].append({"name": "File Location", "value": str(dt_fn)})
+            dt_fd = os.stat(dt_fn)
+            data_types[-1]["meta"].append({"name": "File Size", "value": "{} bytes".format(dt_fd.st_size)})
+            data_types[-1]["meta"].append({"name": "File Creation Date", "value": time.asctime(time.localtime(dt_fd.st_ctime))+" (local time)"})
+            data_types[-1]["meta"].append({"name": "File Modification Date", "value": time.asctime(time.localtime(dt_fd.st_mtime))+" (local time)"})
+        except:
+            pass
 
     ##################################################
     #Analysis details
