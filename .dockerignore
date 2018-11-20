@@ -6,5 +6,6 @@ venv
 *.xlsx
 config.json
 Dockerfile
+docker-compose.yaml
 Jenkinsfile
 *.sample

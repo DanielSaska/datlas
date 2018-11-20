@@ -1,0 +1,28 @@
+#Create this file wherever you want and pass the module into the run() function
+from your.module.analysis import SomeAnalysis
+from your.module.data_type import SomeData
+from your.module.analysis_group import SomeAnalysisGroup
+
+
+#--- Processing Configuration
+n_threads = 8; #Number of threads the data atlas is allowed to run
+
+#--- Connection Configuration
+connection = "DIRECT" #For now a direct connetion is the only option
+uri_mongodb = "mongodb://datlas:SOMEPASS@172.19.0.1:27017/datlas" #When using a direct connection, provide mongodb uri
+
+
+#--- Data Configuration
+dir_data = "/mnt/data" #This is where your data lives, requires (at least) read-only access
+dir_pickles = "/mnt/pickles" #This is where data pickles will be created, requires read-write access
+
+#Data types with their directories and respective data classes
+data_types = {
+        "some_data" : {
+            "dir" : "some_data",
+            "class" : SomeData
+            },
+        }
+addons = [SomeAnalysis] #All your analysis addons
+groups = [SomeAnalysisGroup] #All your analysis groups
+
