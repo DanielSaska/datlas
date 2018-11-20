@@ -107,3 +107,4 @@ config.json
 commit.sha
 configuration.py
 test_env/
+docker-compose.yaml
