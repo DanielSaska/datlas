@@ -1,7 +1,7 @@
 #!/bin/python3
-from .observatory.ingest_recording import ingest_recording
-from .observatory.ingest_experiment import ingest_experiment
-from .observatory.ingest_group import ingest_group
+from .ingest.recording import ingest_recording
+from .ingest.experiment import ingest_experiment
+from .ingest.group import ingest_group
 from pymongo import MongoClient
 import json
 import os
