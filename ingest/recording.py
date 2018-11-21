@@ -41,7 +41,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
 
     epid = objectid.ObjectId(strid)
 
-    db = mdb_client.datlas
+    db = mdb_client.get_default_database()
     r_db = db.recordings
     ra_db = db.recording_analysis
     dt_db = db.recording_data

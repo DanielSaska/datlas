@@ -11,7 +11,7 @@ import os.path
 import pickle
 
 def ingest_experiment(cfg,exp_cfg,mdb_client,pool):
-    db = mdb_client.datlas
+    db = mdb_client.get_default_database()
     if exp_cfg["type"] == "experiment":
         in_db = db.experiments
         a_db = db.experiment_analysis
