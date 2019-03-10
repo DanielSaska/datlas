@@ -3,11 +3,12 @@
 
 - Getting Started
 
-  - [Quick start](/quick-start.md)
-  - [Quick start (no Docker)](/quick-start-no-docker.md)
-  - [Using the *datlas* library](/python-library-start.md)
+  - [User Quick Start](/python-library-start.md)
   - [Example Visualization](/example-visualization.md)
   - [Example Analysis](/example-analysis.md)
+  - Self-Hosting Quick Start
+    - [With Docker (recommended)](/quick-start.md)
+    - [Without Docker](/quick-start-no-docker.md)
 
 - Usage
 
@@ -22,4 +23,3 @@
   - [Advanced Database Setup](/database-advanced.md)
   - [Automated Deployment](/automated-deployment.md)
 
-- [Under the Hood](/under-the-hood.md)

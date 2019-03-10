@@ -10,6 +10,8 @@ git clone https://github.com/DanielSaska/datlas
 pip install -r datlas/requirements.txt
 mkdir -p data/noise pickles
 ```
+We have also created some directories. `data/noise` is where we will store our data and `pickles` is where the library will store intermediary pickle files.
+
 ## Generate some data
 First we need some data. For now, lets generate some gaussian noise:
 ```python
