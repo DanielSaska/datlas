@@ -70,7 +70,7 @@ def run(cfg,stateful=False,state=None,verbose=True):
                 s.cache_file_dates[rc] = cd
                 data = cfg.data_types[k]["class"](r[0],r[1],fill=False)
                 if str(data.id) not in s.cache_recordings.keys():
-                    s.cache_recordings[str(data.id)] = {"__date__": datetime.datetime.fromtimestamp(cd))}
+                    s.cache_recordings[str(data.id)] = {"__date__": datetime.datetime.fromtimestamp(cd)}
                 s.cache_recordings[str(data.id)][k] = data
                 if s.cache_recordings["__date__"] < datetime.datetime.fromtimestamp(cd):
                     s.cache_recordings["__date__"] = datetime.datetime.fromtimestamp(cd)
