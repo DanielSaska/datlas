@@ -73,8 +73,8 @@ def run(cfg,stateful=False,state=None,verbose=True):
                 if str(data.id) not in s.cache_recordings.keys():
                     s.cache_recordings[str(data.id)] = {"__date__": datetime.datetime.fromtimestamp(cd)}
                 s.cache_recordings[str(data.id)][k] = data
-                if s.cache_recordings["__date__"] < datetime.datetime.fromtimestamp(cd):
-                    s.cache_recordings["__date__"] = datetime.datetime.fromtimestamp(cd)
+                if s.cache_recordings[str(data.id)]["__date__"] < datetime.datetime.fromtimestamp(cd):
+                    s.cache_recordings[str(data.id)]["__date__"] = datetime.datetime.fromtimestamp(cd)
     print("--- End of list")
 
         
