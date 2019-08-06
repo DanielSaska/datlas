@@ -29,7 +29,7 @@ You will need to create a configuration file `config.json` which can be stored a
 ```json
 {
 	"port": 8080,
-	"mongo"  : "mongodb://172.17.0.1:27017/datlas"
+	"mongo"  : "mongodb://127.0.0.1:27017/datlas"
 }
 ```
 !> Port 8080 may be taken by some other service. You can replace `-p 8080:8080` with `-p PORT:8080` where *PORT* is a free port on your operating system.

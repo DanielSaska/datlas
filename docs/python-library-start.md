@@ -1,3 +1,4 @@
+> This guide assumes you have access to working Datlas server, for more information on self-hosting, see [here](quick-start.md) on set up with docker or [here](quick-start-no-docker.md) without docker.
 # Using the *datlas* library
 Installation using `pip` will be supported in future releases, however for now, you will need to clone the library directly from the repository.
 Let's create `test_env` environment and a python virtual environment for testing:

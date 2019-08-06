@@ -15,7 +15,7 @@
   - [Data Types](/data-types.md)
   - [Data Visualization](/data-visualization.md)
   - [Data Analysis](/data-analysis.md)
-  - [Analysis Groups](/data-analysis.md)
+  - [Analysis Groups](/analysis-groups.md)
   - [Summaries](/summaries.md)
 
 - Advanced Setup

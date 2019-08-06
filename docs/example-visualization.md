@@ -57,7 +57,7 @@ and then modify your `generate_db_entry()` method:
                 "short_name": "Noise",
                 "summary": {}
                 }
-        return entry, [BasicVisualization.run(self)
+        return entry, [BasicVisualization.run(self)]
 ```
 
 Of course, nothing prevents you from making thsi a method of the `NoiseDataType` itself or even doing the plotting in the `generate_db_entry()` method itself. Also note that if you instantiate the `NoiseDataType` yourself and then call `BasicVisualization.run` with `dev=True` on it, it will plot the figure locally into a html file which is great when you are creating the plots for the first time or you need to troubleshoot.
