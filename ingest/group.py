@@ -11,7 +11,7 @@ import os.path
 import pickle
 
 def ingest_group(cfg,g,recordings, changed,mdb_client,pool):
-    db = mdb_client.datlas
+    db = mdb_client.get_default_database()
     g_db  = db.groups
     a_db  = db.group_analysis
 
