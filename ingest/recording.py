@@ -35,6 +35,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
             "tags": tags,
             "experiment": etype,
             "groups": apply_groups,
+            "src_modified": data_dict["__date__"],
             "data_types": list(data_dict.keys()),
             "changed": False
             }
@@ -49,7 +50,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
 
     #Check whether we have any changes
     sha = get_sha()
-    dbrec = r_db.find_one({"_id": epid, "commit": sha})
+    dbrec = r_db.find_one({"_id": epid, "commit": sha, "src_modified": { "$gte": data_dict["__date__"] }})
     if dbrec: #Already executed
         dt = dbrec["data_types"]
         changed = False
@@ -77,6 +78,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
     recording = {
             "_id": epid,
             "commit": sha,
+            "src_modified": data_dict["__date__"],
             "data_types": [],
             "summary": {},
             "analysis": [],
