@@ -8,6 +8,14 @@ import os
 from multiprocessing import Process
 import multiprocessing
 import time
+import platform
+import datetime
+
+def creation_date(fl):
+    try:
+        return os.path.getmtime(fl)
+    except Exception:
+        return None
 
 
 def search_files(directory='.', extension=''):
@@ -32,7 +40,8 @@ class State:
         print("Starting pool with {} workers.".format(cfg.n_threads))
         self.pool = multiprocessing.Pool(processes=cfg.n_threads)
         self.client = MongoClient(cfg.uri_mongodb)
-        self.cache_files = set();
+        self.cache_files = set()
+        self.cache_file_dates = {}
         self.cache_recordings = {}
 
 
@@ -55,13 +64,17 @@ def run(cfg,stateful=False,state=None,verbose=True):
         recordings = search_files(directory="{}/{}".format(cfg.dir_data,cfg.data_types[k]["dir"]), extension='meta.json')
         for r in recordings:
             rc = "{}/{}".format(r[0],r[1])
-            print(rc)
-            if rc not in s.cache_files:
+            cd = creation_date(rc)
+            if rc not in s.cache_files or s.cache_file_dates[rc] == cd:
+                print(rc)
                 s.cache_files.add(rc)
+                s.cache_file_dates[rc] = cd
                 data = cfg.data_types[k]["class"](r[0],r[1],fill=False)
                 if str(data.id) not in s.cache_recordings.keys():
-                    s.cache_recordings[str(data.id)] = {}
+                    s.cache_recordings[str(data.id)] = {"__date__": datetime.datetime.fromtimestamp(cd)}
                 s.cache_recordings[str(data.id)][k] = data
+                if s.cache_recordings[str(data.id)]["__date__"] < datetime.datetime.fromtimestamp(cd):
+                    s.cache_recordings[str(data.id)]["__date__"] = datetime.datetime.fromtimestamp(cd)
     print("--- End of list")
 
         
