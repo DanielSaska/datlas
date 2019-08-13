@@ -26,3 +26,4 @@ data_types = {
 addons = [SomeAnalysis] #All your analysis addons
 groups = [SomeAnalysisGroup] #All your analysis groups
 
+del_list = "delete_list_file.json"
