@@ -1,0 +1,17 @@
+node {
+    def app
+    stage('Clone repository') {
+        checkout scm
+    }
+
+    stage('Build image') {
+        app = docker.build("danielsaska/datlas","-f ./builds/py3.6.7/alpine/Dockerfile .")
+    }
+
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            app.push("beta_${env.BUILD_NUMBER}")
+            app.push("beta")
+        }
+    }
+}
