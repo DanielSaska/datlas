@@ -2,6 +2,7 @@
 from .ingest.recording import ingest_recording
 from .ingest.experiment import ingest_experiment
 from .ingest.group import ingest_group
+from .util.db_delete import db_del_recordings
 from pymongo import MongoClient
 import json
 import os
@@ -58,6 +59,22 @@ def run(cfg,stateful=False,state=None,verbose=True):
             "uri_mongodb": cfg.uri_mongodb
             }
 
+    del_paths = []
+    del_ids = []
+
+    print("Del list: {}".format(cfg.del_list))
+    if 'del_list' in cfg and os.path.isfile(cfg.del_list):
+        try:
+            with open(cfg.del_list) as f:
+                data = json.load(f)
+                del_paths = data["paths"]
+                del_ids = data["ids"]
+                db_del_recordings(del_ids,s.client)
+        except:
+            pass
+        
+    
+
     #For every data type, check for new files
     print("--- Found recordings:")
     for k in cfg.data_types.keys():
@@ -65,7 +82,7 @@ def run(cfg,stateful=False,state=None,verbose=True):
         for r in recordings:
             rc = "{}/{}".format(r[0],r[1])
             cd = creation_date(rc)
-            if rc not in s.cache_files or s.cache_file_dates[rc] == cd:
+            if rc not in del_paths and (rc not in s.cache_files or s.cache_file_dates[rc] == cd):
                 print(rc)
                 s.cache_files.add(rc)
                 s.cache_file_dates[rc] = cd
