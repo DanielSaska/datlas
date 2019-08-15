@@ -62,6 +62,7 @@ def run(cfg,stateful=False,state=None,verbose=True):
     del_paths = []
     del_ids = []
 
+    print("Del list: {}".format(cfg.del_list))
     if 'del_list' in cfg and os.path.isfile(cfg.del_list):
         try:
             with open(cfg.del_list) as f:
