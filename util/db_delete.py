@@ -10,7 +10,7 @@ def db_del_recordings(recording_ids,mdb_client):
 
     epids = []
     for rid in recording_ids:
-        epids.append(objectid.ObjectId((rid))
+        epids.append(objectid.ObjectId(rid))
 
     r_db.remove({'_id':{'$in':epids}})
     ra_db.remove({"rec_id": {'$in':epids}})
