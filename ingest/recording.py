@@ -15,6 +15,8 @@ import pickle
 def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]):
     #Get experiment type, data available and tags
     tags = set()
+    date_mod = data_dict["__date__"]
+    del data_dict["__date__"]
     etype = ""
     for k in data_dict.keys():
         if data_dict[k].tags is not None:
@@ -35,7 +37,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
             "tags": tags,
             "experiment": etype,
             "groups": apply_groups,
-            "src_modified": data_dict["__date__"],
+            "src_modified": date_mod,
             "data_types": list(data_dict.keys()),
             "changed": False
             }
@@ -50,7 +52,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
 
     #Check whether we have any changes
     sha = get_sha()
-    dbrec = r_db.find_one({"_id": epid, "commit": sha, "src_modified": { "$gte": data_dict["__date__"] }})
+    dbrec = r_db.find_one({"_id": epid, "commit": sha, "src_modified": { "$gte": date_mod }})
     if dbrec: #Already executed
         dt = dbrec["data_types"]
         changed = False
@@ -78,7 +80,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
     recording = {
             "_id": epid,
             "commit": sha,
-            "src_modified": data_dict["__date__"],
+            "src_modified": date_mod,
             "data_types": [],
             "summary": {},
             "analysis": [],
