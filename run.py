@@ -62,16 +62,15 @@ def run(cfg,stateful=False,state=None,verbose=True):
     del_paths = []
     del_ids = []
 
-    print("Del list: {}".format(cfg.del_list))
-    if 'del_list' in cfg and os.path.isfile(cfg.del_list):
-        try:
+    try:
+        if os.path.isfile(cfg.del_list):
             with open(cfg.del_list) as f:
                 data = json.load(f)
                 del_paths = data["paths"]
                 del_ids = data["ids"]
                 db_del_recordings(del_ids,s.client)
-        except:
-            pass
+    except:
+        pass
         
     
 
@@ -87,6 +86,7 @@ def run(cfg,stateful=False,state=None,verbose=True):
                 s.cache_files.add(rc)
                 s.cache_file_dates[rc] = cd
                 data = cfg.data_types[k]["class"](r[0],r[1],fill=False)
+                data.__date__ = datetime.datetime.fromtimestamp(cd);
                 if str(data.id) not in s.cache_recordings.keys():
                     s.cache_recordings[str(data.id)] = {"__date__": datetime.datetime.fromtimestamp(cd)}
                 s.cache_recordings[str(data.id)][k] = data
@@ -120,6 +120,7 @@ def run(cfg,stateful=False,state=None,verbose=True):
     pgroups = {}
     for rs in results:
         for r in rs:
+            #print("{}:{}".format(r["id"],r["changed"]))
             if r["experiment"] not in experiments:
                 experiments[r["experiment"]] = {"changed": False, "recordings": []}
             if r["changed"] == True:
