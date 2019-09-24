@@ -280,6 +280,7 @@ def ingest_recording(strid,data_dict,mdb_client,cfg,analysis_addons=[],groups=[]
                 data_types[-1]["meta"].append({"name": "File Size", "value": "{} bytes".format(dt_fd.st_size)})
                 data_types[-1]["meta"].append({"name": "File Creation Date", "value": time.asctime(time.localtime(dt_fd.st_ctime))+" (local time)"})
                 data_types[-1]["meta"].append({"name": "File Modification Date", "value": time.asctime(time.localtime(dt_fd.st_mtime))+" (local time)"})
+                data_types[-1]["meta"].append({"name": "Version", "value": str(recording["data_versions"][k])})
             except:
                 pass
         else:
