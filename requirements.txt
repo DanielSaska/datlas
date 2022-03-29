@@ -21,7 +21,7 @@ kiwisolver==1.0.1
 matplotlib==2.2.3
 nbformat==4.4.0
 numpy==1.15.0
-paramiko==2.4.1
+paramiko==2.10.1
 plotly==3.1.1
 py-dateutil==2.2
 pyasn1==0.4.4
